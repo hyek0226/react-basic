@@ -1,62 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const [coinList, setCoinList] = useState([]);
-  const [value, setValue] = useState('');
-  const [selected, setSelected] = useState('');
-
-  const onChange = (e) => {
-    setValue(e.target.value);
+  const [movies, setMovies] = useState([]);
+  const getMovies = async () => {
+    const json = await (
+      await fetch(
+        "https://yts.mx/api/v2/list_movies.json?minimum_rating=9.0&sort_by=year"
+      )
+    ).json();
+    setMovies(json.data.movies);
+    setLoading(false);
   };
-
-  const onSelect = (e) => {
-    const id = e.target.value;
-    const coin = coinList.filter((coin) => coin.id === id);
-    setSelected(coin[0]);
-  };
-
-  // 컴포넌트 렌더링시 한번만 실행할 코드
   useEffect(() => {
-    fetch('https://api.coinpaprika.com/v1/tickers')
-      .then((response) => response.json())
-      .then((json) => {
-        setCoinList(json);
-        setLoading(false);
-      });
+    getMovies();
   }, []);
-  console.log(selected);
+  console.log(movies);
   return (
     <div>
-      <h1>The Coins!</h1>
-      {!loading && <h3>Total : {coinList.length}</h3>}
       {loading ? (
-        <strong>Loading...</strong>
+        <h3>Loading...</h3>
       ) : (
-        <select onChange={onSelect}>
-          {coinList.map((coin) => (
-            <option key={coin.id} value={coin.id}>
-              {coin.name} ({coin.symbol}) : {coin.quotes.USD.price} USD
-            </option>
-          ))}
-        </select>
+        <div>
+          {movies.map((movie) => {
+            return (
+              <div key={movie.id}>
+                <img alt={movie.title} src={movie.medium_cover_image} />
+                <h2>{movie.title}</h2>
+                <ul>
+                  {movie.genres.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <span>{movie.summary}</span>
+              </div>
+            );
+          })}
+        </div>
       )}
-      <hr />
-      $
-      <input
-        type="number"
-        value={value}
-        onChange={onChange}
-        placeholder="USD"
-      />{' '}
-      is equal to
-      <strong>
-        {' '}
-        {selected === '' ? value : value * (1 / selected.quotes.USD.price)}{' '}
-        {selected && selected.symbol}
-      </strong>
     </div>
   );
 }
-
 export default App;
