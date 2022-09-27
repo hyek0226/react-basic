@@ -1,8 +1,8 @@
-import Tabs from './hooks/useTabs';
+import Click from "./hooks/useRef";
 function App() {
   return (
     <div>
-      <Tabs></Tabs>
+      <Click></Click>
     </div>
   );
 }
